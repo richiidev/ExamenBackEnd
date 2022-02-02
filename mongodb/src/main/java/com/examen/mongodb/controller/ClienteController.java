@@ -2,10 +2,15 @@ package com.examen.mongodb.controller;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,54 +29,62 @@ import io.swagger.annotations.Api;
 @Api(tags = "cliente")
 public class ClienteController {
 
-	@Autowired
-	private ClienteRepo repository;
 
 	@Autowired
-	private ClienteService service;
+	ClienteRepo repo;
 	
-	@GetMapping("/cliente/id")
-	public ResponseEntity<Response> getById(@RequestParam String id) {
+	@Autowired
+	ClienteService service;
+	
+	@GetMapping("/clientes")
+	public ResponseEntity<Response> getAllAlumnos(){
 		try {
-			Object response = service.getById(id);
-			return new ResponseEntity<Response>(new Response(true, "Success", response), HttpStatus.OK);
+			Object response = service.getAllClientes();
+			return new ResponseEntity<>(new Response(true,"Success", response),HttpStatus.OK);
 		} catch (Exception e) {
-
-			return new ResponseEntity<Response>(new Response(false, "Error " + e.getMessage(), null), HttpStatus.OK);
+			return new ResponseEntity<>(new Response(false,"error: "+ e.getMessage(),null),HttpStatus.OK);
 		}
 	}
-	@PostMapping("/NutriNet/Cliente")
-	public ResponseEntity<Response> saveCliente(@RequestBody Cliente cliente) {
-		try {
-			repository.save(cliente);
-			return new ResponseEntity<Response>(new Response(true, "Success", cliente), HttpStatus.OK);
-
-		} catch (Exception e) {
-			return new ResponseEntity<Response>(new Response(false, "Error " + e.getMessage(), null), HttpStatus.OK);
+	@PostMapping("NutriNet/Cliente")
+		public ResponseEntity<Cliente> createCliente(@RequestBody Cliente cliente){
+			try {
+				Cliente _cliente = repo.save(cliente);
+				return new ResponseEntity<>(_cliente, HttpStatus.CREATED);
+						
+			} catch (Exception e) {
+				return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+	@GetMapping("NutriNet/Cliente/{id}")
+	public ResponseEntity<Cliente> getClienteById(@PathVariable("id") String id){
+		Optional<Cliente> cliente = repo.findById(id);
+		
+		if(cliente.isPresent()) {
+			return new ResponseEntity<>(cliente.get(),HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	@GetMapping("NutriNet/Client/{id}")
+	public ResponseEntity<Cliente> getClienteAll(@PathVariable("id") String id){
+		Optional<Cliente> cliente = repo.findById(id);
+		
+		if(cliente.isPresent()) {
+			return new ResponseEntity<>(cliente.get(),HttpStatus.OK);
+		}else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 	
-	@PutMapping("/NutriNet/Cliente")
-	public ResponseEntity<Response> updateCliente(@RequestBody Cliente cliente) {
-		try {
-			repository.save(cliente);
-			return new ResponseEntity<Response>(new Response(true, "Success", cliente), HttpStatus.OK);
+	@PutMapping("NutriNet/Cliente/{id}")
+	public ResponseEntity<Cliente> updateC(@PathVariable("id") String id, @RequestBody Cliente cliente) {
+	  Optional<Cliente> clienteData = repo.findById(id);
 
-		} catch (Exception e) {
-			return new ResponseEntity<Response>(new Response(false, "Error " + e.getMessage(), null), HttpStatus.OK);
-		}
+	  if (clienteData.isPresent()) {
+	    return new ResponseEntity<>(repo.save(cliente), HttpStatus.OK);
+	  } else {
+	    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	  }
 	}
-
-	@GetMapping("/NutriNet/Cliente/All")
-	public ResponseEntity<Response> getAll() {
-		try {
-			Object response = repository.findAll();
-			return new ResponseEntity<Response>(new Response(true, "Success", response), HttpStatus.OK);
-		} catch (Exception e) {
-
-			return new ResponseEntity<Response>(new Response(false, "Error " + e.getMessage(), null), HttpStatus.OK);
-		}
-	}
-
-
+		
 }

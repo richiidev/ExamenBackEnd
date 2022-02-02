@@ -13,7 +13,7 @@ public class ClienteService {
 
 	@Autowired
 	ClienteRepo repo;
-	public List<Cliente> getById(String id){
-		return this.repo.findById(id);
+	public List<Cliente> getAllClientes(){
+		return this.repo.findAll();
 	}
 }

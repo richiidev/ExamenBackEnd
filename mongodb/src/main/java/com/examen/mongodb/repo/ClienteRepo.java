@@ -9,8 +9,6 @@ import org.springframework.stereotype.Repository;
 import com.examen.mongodb.model.Cliente;
 
 
-@Repository
-public interface ClienteRepo extends MongoRepository<Cliente, Integer> {
-
-	public List<Cliente> findById(String id);
+public interface ClienteRepo extends MongoRepository<Cliente, String> {
+	List<Cliente> findAll();
 }
